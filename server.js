@@ -6,9 +6,16 @@ import nodemailer from "nodemailer";
 dotenv.config();
 
 const app = express();
+
+// ✅ CORS (safe for dev + prod)
 app.use(cors());
+app.options("*", cors());
+
 app.use(express.json());
 
+/* ===============================
+   EMAIL CONFIG
+================================ */
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -27,18 +34,21 @@ transporter.verify((error) => {
   }
 });
 
+/* ===============================
+   ROUTES
+================================ */
 app.get("/", (req, res) => {
-  res.send("Backend is running");
+  res.status(200).send("Backend is running 💖");
 });
 
 app.post("/send-valentine", async (req, res) => {
   const { name, email } = req.body;
 
   if (!name || !email) {
-    return res.status(400).json({ success: false, message: "Missing data" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing data" });
   }
-
-  console.log(`📧 Sending Valentine email to: ${email} for name: ${name}`);
 
   const link = `https://valentaines.netlify.app/?name=${encodeURIComponent(
     name
@@ -69,17 +79,20 @@ app.post("/send-valentine", async (req, res) => {
       `,
     });
 
-    console.log(`✅ Valentine email sent successfully to: ${email}`);
-    res.json({ success: true });
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error("❌ SEND MAIL ERROR:", error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Failed to send email",
     });
   }
 });
 
-app.listen(5000, () => {
-  console.log("✅ Backend running on http://localhost:5000");
+/* ===============================
+   START SERVER (IMPORTANT)
+================================ */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Backend running on port ${PORT}`);
 });
