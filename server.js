@@ -1,30 +1,12 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 
 dotenv.config();
 
 const app = express();
-
-// CORS - must run first
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "https://valenitine.netlify.app",
-  "https://valentaines.netlify.app",
-];
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.sendStatus(200);
-  next();
-});
+app.use(cors());
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
@@ -43,6 +25,10 @@ transporter.verify((error) => {
   } else {
     console.log("✅ SMTP is ready to send emails");
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("Backend is running");
 });
 
 app.post("/send-valentine", async (req, res) => {
@@ -94,7 +80,6 @@ app.post("/send-valentine", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log("✅ Backend running on http://localhost:5000");
 });
