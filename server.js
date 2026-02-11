@@ -9,7 +9,6 @@ const app = express();
 
 // ✅ CORS (safe for dev + prod)
 app.use(cors());
-app.options("*", cors());
 
 app.use(express.json());
 
